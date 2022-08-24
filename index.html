@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MIDI router</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
+</head>
+<body>
+
+<label for="midi-output-menu">Choose MIDI OUT:</label>
+<select id="midi-output-menu" class="midi-select" onchange="changeMidiOut()"></select>
+
+<label for="midi-input-menu">Choose MIDI IN:</label>
+<select id="midi-input-menu" class="midi-select" onchange="changeMidiIn()"></select>
+
+<button onclick="initMidiSources()">Reload midi sources</button>
+
+</body>
+</html>
