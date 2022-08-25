@@ -1,5 +1,6 @@
 const MIDI_INPUT_MENU = '#midi-input-menu';
 const MIDI_OUTPUT_MENU = '#midi-output-menu';
+const MAX_POLYPHONY = 4;
 
 let midi = null;
 
@@ -11,11 +12,22 @@ let midiOutList = [];
 let midiOutMenu = null;
 let midiOutput = null;
 
+const activeNotes = [];
+const overriddenNotes = [];
+const channelList = [];
+
 //////
+initChannelList()
 
 initMidiSources();
-
 ////////
+
+function initChannelList() {
+    for (let i = 0; i <= 15; i++) {
+        channelList.push({channel: 1 + i, isUsed: i < MAX_POLYPHONY, isBusy: false, noteOnCode: 144 + i, noteOffCode: 128 + i});
+    }
+    console.log(channelList);
+}
 
 function initMidiSources() {
     navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
@@ -94,14 +106,78 @@ function changeMidiIn() {
     console.log(midiInput);
 
     try {
-        midiInput.onmidimessage = playNote;
+        midiInput.onmidimessage = modifyMidiMessage;
     } catch (e) {
         //TODO: change notification and re-init midi
+        //TODO: try to catch onstatechange
         alert('MIDI controller was inserted! Please, reconnect your device and try again!')
     }
 }
 
-function playNote(message) {
-    console.log(message.data);
+function modifyMidiMessage(message) {
+    if (ignoreMessage(message)) {
+        return;
+    }
+
+    changeMidiChannel(message);
+    
     midiOutput.send(message.data)
+}
+
+function ignoreMessage(message) {
+    // currently, it catches MIDI on / off messages:
+    return !(message.data[0] >= 128 && message.data[0] <= 159);
+}
+
+function changeMidiChannel(message) {
+    // Note on
+    if (message.data[0] >= 144 && message.data[0] <= 159) {
+        if (activeNotes.length >= MAX_POLYPHONY) {
+            playNoteOff(activeNotes[0]);
+            overriddenNotes.push(activeNotes[0]);
+            activeNotes[0].channel.isBusy = false;
+            activeNotes.shift();
+        }
+
+        const channel = channelList.find((ch) => ch.isUsed && !ch.isBusy);
+        channel.isBusy = true;
+
+        const currentNote = {
+            message,
+            channel
+        }
+
+        activeNotes.push(currentNote);
+
+        playNoteOn(currentNote);
+    }
+
+    // Note off
+    if (message.data[0] >= 128 && message.data[0] <= 143) {
+        const overriddenNoteIndex = overriddenNotes.findIndex((note) => note.message.data[1] === message.data[1]);
+        if (overriddenNoteIndex >= 0) {
+            overriddenNotes.splice(overriddenNoteIndex, 1);
+            return;
+        }
+
+        const currentNoteIndex = activeNotes.findIndex((note) => note.message.data[1] === message.data[1]);
+        const currentNote = activeNotes[currentNoteIndex];
+        
+        currentNote.channel.isBusy = false;
+        activeNotes.splice(currentNoteIndex, 1);
+        
+        playNoteOff(currentNote);
+    }
+}
+
+function playNoteOn(currentNote) {
+    const outputNote = currentNote.message.data;
+    outputNote[0] = currentNote.channel.noteOnCode;
+    midiOutput.send(outputNote);
+}
+
+function playNoteOff(currentNote) {
+    const outputNote = currentNote.message.data;
+    outputNote[0] = currentNote.channel.noteOffCode;
+    midiOutput.send(outputNote);
 }
