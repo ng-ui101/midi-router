@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>MIDI router</title>
-    <link rel="stylesheet" href="index.css">
-    <script src="index.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="./js/main.js"></script>
 </head>
 <body>
 
-<label for="midi-output-menu">Choose MIDI OUT:</label>
-<select id="midi-output-menu" class="midi-select" onchange="changeMidiOut()"></select>
-
 <label for="midi-input-menu">Choose MIDI IN:</label>
-<select id="midi-input-menu" class="midi-select" onchange="changeMidiIn()"></select>
+<select id="midi-input-menu" class="midi-select"></select>
 
-<button onclick="initMidiSources()">Reload midi sources</button>
+<label for="midi-output-menu">Choose MIDI OUT:</label>
+<select id="midi-output-menu" class="midi-select"></select>
+
+<button id="reload-midi-sources" type="button">Reload midi sources</button>
 
 </body>
 </html>
