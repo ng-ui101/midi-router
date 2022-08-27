@@ -1,9 +1,11 @@
-import { ignoreMessage, playNote } from "./midi-utils.js";
-import { NoteMessagesRouter } from "./note-messages-router.js";
+import { ignoreMessage, playNote } from './midi-utils.js';
+import { NoteMessagesRouter } from './pseudo-polyphony/note-messages-router.js';
+import { ChannelViewArea } from './pseudo-polyphony/channel-view-area.js';
+import { ChannelViewWidget } from './pseudo-polyphony/channel-view-widget.js';
 
 const MIDI_INPUT_MENU = '#midi-input-menu';
 const MIDI_OUTPUT_MENU = '#midi-output-menu';
-const RELOAD_SOURCES_BUTTON = '#reload-midi-sources';
+const RELOAD_SOURCES_BUTTON = '#reload-sources-button';
 
 let midi = null;
 
@@ -20,6 +22,10 @@ let midiOutput = null;
 const noteMessagesRouter = new NoteMessagesRouter([1, 2, 3, 4]);
 
 initMidiSources();
+
+customElements.define('channel-view-area', ChannelViewArea);
+customElements.define('channel-view-widget', ChannelViewWidget);
+
 
 function initMidiSources() {
     if (!reloadSourcesButton) {

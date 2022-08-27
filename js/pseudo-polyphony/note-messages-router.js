@@ -1,4 +1,4 @@
-import { MIDI_COMMAND } from './enums.js'
+import { MIDI_COMMAND } from '../enums.js'
 
 /*
 * [1] - is the place to overridden old notes - it make is possible ignore note-off messages 
