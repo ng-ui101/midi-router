@@ -19,10 +19,7 @@ let midiOutput = null;
 
 const noteMessagesRouter = new NoteMessagesRouter([1, 2, 3, 4]);
 
-///////
-
 initMidiSources();
-///////
 
 function initMidiSources() {
     if (!reloadSourcesButton) {
