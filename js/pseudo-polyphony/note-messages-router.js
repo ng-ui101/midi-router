@@ -1,4 +1,6 @@
-import { MIDI_COMMAND } from '../enums.js'
+import { MIDI_COMMAND } from '../constants.js'
+import { MIDI_IMPLEMENTATION_LIST } from '../constants.js'
+import { subscribeTo } from '../subscription-tools.js'
 
 /*
 * [1] - is the place to overridden old notes - it make is possible ignore note-off messages 
@@ -7,7 +9,7 @@ import { MIDI_COMMAND } from '../enums.js'
 * 
 * [2] - it returns object with initial midi-message with some additional information:
 * currentNote = {
-*       assignedCommand: MIDI_COMMAND (see enums.js) - required,
+*       assignedCommand: MIDI_COMMAND (see constants.js) - required,
 *       assignedChannel: channel for modified midi message - optional,
 *       message: received midi message - optional,
 *       replaceableNote: reference for previously note - optional
@@ -21,11 +23,36 @@ export class NoteMessagesRouter {
     _activeNotes = [];
     _ignoredNotes = [];     // [1]
     _channelList = [];
+    _channelList2 = [];
     _maxPolyphony = 0;
     
     constructor(allowedOutChannels) {
         this._maxPolyphony = allowedOutChannels.length;
         this._initChannelsTable(allowedOutChannels);
+        
+        ////
+        subscribeTo('channels-state-was-changed', (state) => this._initChannelsTable2(state))
+    }
+
+    _initChannelsTable2(chosenChannels) {
+        if (chosenChannels.length === 0) {
+            return;
+        }
+
+        this._channelList2 = [];
+        
+        chosenChannels.forEach((state) => {
+            this._channelList2.push({
+                channelAlias: state.channel,
+                noteOnCode: (MIDI_IMPLEMENTATION_LIST.find((code) => state.channel === code.channel)).noteOnCode,
+                noteOffCode: (MIDI_IMPLEMENTATION_LIST.find((code) => state.channel === code.channel)).noteOffCode,
+                isUsed: true,
+                isBusy: false,
+            })
+        });
+
+        console.log('--channelList2--');
+        console.log(this._channelList2);
     }
 
     _initChannelsTable(allowedOutChannels) {

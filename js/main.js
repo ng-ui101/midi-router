@@ -23,9 +23,12 @@ const noteMessagesRouter = new NoteMessagesRouter([1, 2, 3, 4]);
 
 initMidiSources();
 
-customElements.define('channel-view-area', ChannelViewArea);
-customElements.define('channel-view-widget', ChannelViewWidget);
+initHtmlComponents();
 
+function initHtmlComponents() {
+    customElements.define('channel-view-area', ChannelViewArea);
+    customElements.define('channel-view-widget', ChannelViewWidget);
+}
 
 function initMidiSources() {
     if (!reloadSourcesButton) {

@@ -1,4 +1,4 @@
-import { MIDI_COMMAND } from './enums.js'
+import { MIDI_COMMAND } from './constants.js'
 
 /*
 * [1] - in the future the rules may be:

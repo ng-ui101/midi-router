@@ -1,3 +1,5 @@
+import { emit } from '../subscription-tools.js'
+
 export class ChannelViewArea extends HTMLElement {
     channelsState = [];
 
@@ -5,7 +7,6 @@ export class ChannelViewArea extends HTMLElement {
         super();
 
         this.classList.add('view-area')
-
     }
 
     render() {
@@ -24,6 +25,7 @@ export class ChannelViewArea extends HTMLElement {
                 console.log(this.channelsState)
 
                 chState.channel = ch;
+                this.updateRouter();
             }
 
             widget.onRemove = () => this.removeChannel(chState);
@@ -43,6 +45,8 @@ export class ChannelViewArea extends HTMLElement {
         }
 
         console.log(this.channelsState)
+
+        this.updateRouter();
     }
 
     addChannel() {
@@ -66,11 +70,10 @@ export class ChannelViewArea extends HTMLElement {
     }
 
     updateRouter() {
-        console.log('updated')
+        emit('channels-state-was-changed', this.channelsState);
     }
 
     connectedCallback() {
-        this.updateRouter();
         this.render();
     }
 }
