@@ -5,6 +5,12 @@ export const MIDI_COMMAND = {
     IGNORE: 'ignore'
 }
 
+export const SUBSCRIPTION_DICTIONARY = {
+    CHANNEL_SETTINGS_WAS_CHANGED: 'channel-settings-was-changed',
+    NOTE_WAS_PLAYED: 'note-was-played',
+    NOTE_WAS_RELEASED: 'note-was-released',
+}
+
 export const MIDI_IMPLEMENTATION_LIST = [];
 
 for (let i = 0; i <= 15;) {

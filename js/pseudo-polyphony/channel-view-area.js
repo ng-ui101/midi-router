@@ -1,4 +1,5 @@
-import { emit } from '../subscription-tools.js'
+import { emit, subscribeTo, unsubscribeFrom } from '../subscription-tools.js'
+import { SUBSCRIPTION_DICTIONARY } from '../constants.js'
 
 export class ChannelViewArea extends HTMLElement {
     channelsState = [];
@@ -7,6 +8,14 @@ export class ChannelViewArea extends HTMLElement {
         super();
 
         this.classList.add('view-area')
+        subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, (ch) => this._markChannel(ch, 'true'))
+        subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, (ch) => this._markChannel(ch, 'false'))
+    }
+    
+    _markChannel(ch, mark) {
+        const id = ch.assignedChannel.id;
+        const widget = document.querySelector(`#${id}`);
+        widget.setAttribute('busy', mark);
     }
 
     render() {
@@ -14,7 +23,7 @@ export class ChannelViewArea extends HTMLElement {
             if (chState.isRendered) {
                 return;
             }
-            
+                        
             let widget = document.createElement('channel-view-widget');
             widget.classList.add('widget')
             
@@ -29,6 +38,8 @@ export class ChannelViewArea extends HTMLElement {
             }
 
             widget.onRemove = () => this.removeChannel(chState);
+
+            widget.setAttribute('busy', 'false');
 
             this.append(widget)
 
@@ -70,10 +81,15 @@ export class ChannelViewArea extends HTMLElement {
     }
 
     updateRouter() {
-        emit('channels-state-was-changed', this.channelsState);
+        emit(SUBSCRIPTION_DICTIONARY.CHANNEL_SETTINGS_WAS_CHANGED, this.channelsState);
     }
 
     connectedCallback() {
         this.render();
+    }
+
+    disconnectedCallback() {
+        unsubscribeFrom(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED);
+        unsubscribeFrom(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED);
     }
 }

@@ -39,4 +39,12 @@ export class ChannelViewWidget extends HTMLElement {
     connectedCallback() {
         this.render();
     }
+
+    static get observedAttributes() {
+        return ['busy'];
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.classList.toggle('note-on')
+    }
 }

@@ -2,6 +2,7 @@ import { ignoreMessage, playNote } from './midi-utils.js';
 import { NoteMessagesRouter } from './pseudo-polyphony/note-messages-router.js';
 import { ChannelViewArea } from './pseudo-polyphony/channel-view-area.js';
 import { ChannelViewWidget } from './pseudo-polyphony/channel-view-widget.js';
+import { SUBSCRIPTION_DICTIONARY } from './constants.js'
 
 const MIDI_INPUT_MENU = '#midi-input-menu';
 const MIDI_OUTPUT_MENU = '#midi-output-menu';
@@ -19,7 +20,7 @@ let midiOutList = [];
 let midiOutMenu = null;
 let midiOutput = null;
 
-const noteMessagesRouter = new NoteMessagesRouter([1, 2, 3, 4]);
+const noteMessagesRouter = new NoteMessagesRouter(SUBSCRIPTION_DICTIONARY.CHANNEL_SETTINGS_WAS_CHANGED);
 
 initMidiSources();
 

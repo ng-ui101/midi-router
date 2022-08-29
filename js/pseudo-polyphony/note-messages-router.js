@@ -1,6 +1,6 @@
 import { MIDI_COMMAND } from '../constants.js'
 import { MIDI_IMPLEMENTATION_LIST } from '../constants.js'
-import { subscribeTo } from '../subscription-tools.js'
+import { subscribeTo, unsubscribeFrom, emit } from '../subscription-tools.js'
 
 /*
 * [1] - is the place to overridden old notes - it make is possible ignore note-off messages 
@@ -14,115 +14,132 @@ import { subscribeTo } from '../subscription-tools.js'
 *       message: received midi message - optional,
 *       replaceableNote: reference for previously note - optional
 * }
-* 
-* [3] - note on handler
-* [4] - note off handler
 * */
 
 export class NoteMessagesRouter {
     _activeNotes = [];
     _ignoredNotes = [];     // [1]
     _channelList = [];
-    _channelList2 = [];
-    _maxPolyphony = 0;
+
+    _channelListIsClearSub = 'channel-list-is-clear'
     
-    constructor(allowedOutChannels) {
-        this._maxPolyphony = allowedOutChannels.length;
-        this._initChannelsTable(allowedOutChannels);
-        
-        ////
-        subscribeTo('channels-state-was-changed', (state) => this._initChannelsTable2(state))
+    _passOnlyNoteOff = false;
+    
+    constructor(updateChannelListSub) {
+        subscribeTo(updateChannelListSub, (usedChannels) => this._initChannelsTable(usedChannels))
     }
 
-    _initChannelsTable2(chosenChannels) {
-        if (chosenChannels.length === 0) {
+    _initChannelsTable(usedChannels) {
+        if (usedChannels.length === 0) {
             return;
         }
 
-        this._channelList2 = [];
-        
-        chosenChannels.forEach((state) => {
-            this._channelList2.push({
-                channelAlias: state.channel,
-                noteOnCode: (MIDI_IMPLEMENTATION_LIST.find((code) => state.channel === code.channel)).noteOnCode,
-                noteOffCode: (MIDI_IMPLEMENTATION_LIST.find((code) => state.channel === code.channel)).noteOffCode,
-                isUsed: true,
+        const updatedList = [];
+
+        usedChannels.forEach((el) => {
+            updatedList.push({
+                id: el.id,
+                channelAlias: el.channel,
+                noteOnCode: (MIDI_IMPLEMENTATION_LIST.find((code) => el.channel === code.channel)).noteOnCode,
+                noteOffCode: (MIDI_IMPLEMENTATION_LIST.find((code) => el.channel === code.channel)).noteOffCode,
                 isBusy: false,
             })
         });
 
-        console.log('--channelList2--');
-        console.log(this._channelList2);
-    }
+        const modifyChannelList = () => {
+            this._channelList = [...updatedList];
+            this._passOnlyNoteOff = false;
 
-    _initChannelsTable(allowedOutChannels) {
-        for (let i = 0; i <= 15;) {
-            this._channelList.push({
-                noteOnCode: 144 + i, 
-                noteOffCode: 128 + i,
-                channelAlias: ++i,
-                isUsed: !!allowedOutChannels.find((ch) => ch === i),
-                isBusy: false,
-            });
+            unsubscribeFrom(this._channelListIsClearSub);
         }
-        console.log(this._channelList);
+        
+        if (this._channelList.find((ch) => ch.isBusy)) {
+            this._passOnlyNoteOff = true;
+            
+            subscribeTo(this._channelListIsClearSub, modifyChannelList)
+        } else {
+            modifyChannelList()
+        }
     }
 
-    /*[2]*/
-    setRoute(message) {
-        /*[3]*/
-        if (message.data[0] >= 144 && message.data[0] <= 159) {
-            let currentNote = {};
-            
-            if (this._activeNotes.length >= this._maxPolyphony) {
-                const oldNote = this._activeNotes[0];
-                
-                this._ignoredNotes.push(oldNote);
-                oldNote.assignedChannel.isBusy = false;
-                this._activeNotes.shift();
+    _noteOnHandler(message) {
+        if (this._passOnlyNoteOff) {
+            this._ignoredNotes.push({
+                assignedCommand: MIDI_COMMAND.NOTE_ON,
+                message
+            });
 
-                delete oldNote?.replaceableNote;
-                delete oldNote.assignedCommand;
-                
-                currentNote = {
-                    replaceableNote: oldNote,
-                    assignedCommand: MIDI_COMMAND.REPLACE_NOTE
-                }
-            }
+            return { assignedCommand: MIDI_COMMAND.IGNORE };
+        }
+        
+        let currentNote = {};
+        if (this._activeNotes.length >= this._channelList.length) {
+            const oldNote = this._activeNotes[0];
 
-            const assignedChannel = this._channelList.find((ch) => ch.isUsed && !ch.isBusy);
-            assignedChannel.isBusy = true;
+            this._ignoredNotes.push(oldNote);
+            oldNote.assignedChannel.isBusy = false;
+            this._activeNotes.shift();
+
+            delete oldNote?.replaceableNote;
+            delete oldNote.assignedCommand;
 
             currentNote = {
-                ...currentNote,
-                message,
-                assignedChannel,
-                assignedCommand: currentNote?.assignedCommand || MIDI_COMMAND.NOTE_ON
+                replaceableNote: oldNote,
+                assignedCommand: MIDI_COMMAND.REPLACE_NOTE
             }
-
-            this._activeNotes.push(currentNote);
-
-            return currentNote;
         }
 
-        /*[4]*/
+        const assignedChannel = this._channelList.find((ch) => !ch.isBusy);
+
+        assignedChannel.isBusy = true;
+
+        currentNote = {
+            ...currentNote,
+            message,
+            assignedChannel,
+            assignedCommand: currentNote?.assignedCommand || MIDI_COMMAND.NOTE_ON
+        }
+
+        this._activeNotes.push(currentNote);
+
+        return currentNote;
+    }
+
+    _noteOffHandler(message) {
+        const ignoredNoteIndex = this._ignoredNotes.findIndex((note) => note.message.data[1] === message.data[1]);
+        if (ignoredNoteIndex >= 0) {
+            this._ignoredNotes.splice(ignoredNoteIndex, 1);
+            return { assignedCommand: MIDI_COMMAND.IGNORE };
+        }
+
+        const currentNoteIndex = this._activeNotes.findIndex((note) => note.message.data[1] === message.data[1]);
+        const currentNote = this._activeNotes[currentNoteIndex];
+
+        currentNote.assignedChannel.isBusy = false;
+        this._activeNotes.splice(currentNoteIndex, 1);
+
+        if (this._activeNotes.length === 0 && this._passOnlyNoteOff) {
+            emit(this._channelListIsClearSub)
+        }
+        
+        return {
+            ...currentNote,
+            assignedCommand: MIDI_COMMAND.NOTE_OFF
+        };
+    }
+    
+    /*[2]*/
+    setRoute(message) {
+        if (this._channelList.length === 0) {
+            return { assignedCommand: MIDI_COMMAND.IGNORE };
+        }
+        
+        if (message.data[0] >= 144 && message.data[0] <= 159) {
+            return this._noteOnHandler(message);
+        }
+        
         if (message.data[0] >= 128 && message.data[0] <= 143) {
-            const ignoredNoteIndex = this._ignoredNotes.findIndex((note) => note.message.data[1] === message.data[1]);
-            if (ignoredNoteIndex >= 0) {
-                this._ignoredNotes.splice(ignoredNoteIndex, 1);
-                return { assignedCommand: MIDI_COMMAND.IGNORE };
-            }
-
-            const currentNoteIndex = this._activeNotes.findIndex((note) => note.message.data[1] === message.data[1]);
-            const currentNote = this._activeNotes[currentNoteIndex];
-
-            currentNote.assignedChannel.isBusy = false;
-            this._activeNotes.splice(currentNoteIndex, 1);
-
-            return {
-                ...currentNote,
-                assignedCommand: MIDI_COMMAND.NOTE_OFF
-            };
+            return this._noteOffHandler(message);
         }
     }
 }

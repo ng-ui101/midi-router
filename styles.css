@@ -12,6 +12,11 @@ body {
     border-radius: 50%;
     width: 16px;
     height: 16px;
+    background-color: red;
+}
+
+.note-on > .circle{
+    background-color: unset;
 }
 
 .add-button {
