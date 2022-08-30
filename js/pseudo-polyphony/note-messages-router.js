@@ -1,6 +1,7 @@
 import { MIDI_COMMAND } from '../constants.js'
 import { MIDI_IMPLEMENTATION_LIST } from '../constants.js'
 import { subscribeTo, unsubscribeFrom, emit } from '../subscription-tools.js'
+import { isNoteOn, isNoteOff } from '../midi-utils.js'
 
 /*
 * [1] - is the place to overridden old notes - it make is possible ignore note-off messages 
@@ -134,11 +135,11 @@ export class NoteMessagesRouter {
             return { assignedCommand: MIDI_COMMAND.IGNORE };
         }
         
-        if (message.data[0] >= 144 && message.data[0] <= 159) {
+        if (isNoteOn(message)) {
             return this._noteOnHandler(message);
         }
         
-        if (message.data[0] >= 128 && message.data[0] <= 143) {
+        if (isNoteOff(message)) {
             return this._noteOffHandler(message);
         }
     }

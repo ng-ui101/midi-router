@@ -11,14 +11,17 @@ export class ChannelViewArea extends HTMLElement {
         subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, (ch) => this._markChannel(ch, 'true'))
         subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, (ch) => this._markChannel(ch, 'false'))
     }
-    
-    _markChannel(ch, mark) {
-        const id = ch.assignedChannel.id;
-        const widget = document.querySelector(`#${id}`);
-        widget.setAttribute('busy', mark);
+
+    connectedCallback() {
+        this._render();
     }
 
-    render() {
+    disconnectedCallback() {
+        unsubscribeFrom(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED);
+        unsubscribeFrom(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED);
+    }
+
+    _render() {
         this.channelsState.forEach((chState) => {
             if (chState.isRendered) {
                 return;
@@ -31,13 +34,11 @@ export class ChannelViewArea extends HTMLElement {
             widget.channel = chState.channel;
 
             widget.onChannelChange = (ch) => {
-                console.log(this.channelsState)
-
                 chState.channel = ch;
-                this.updateRouter();
+                this._updateRouter();
             }
 
-            widget.onRemove = () => this.removeChannel(chState);
+            widget.onRemove = () => this._removeChannel(chState);
 
             widget.setAttribute('busy', 'false');
 
@@ -51,45 +52,40 @@ export class ChannelViewArea extends HTMLElement {
             addButton.classList.add('add-button')
             addButton.id = 'addButton'
             addButton.innerText = '+'
-            addButton.onclick = () => this.addChannel()
+            addButton.onclick = () => this._addChannel()
             this.append(addButton)
         }
 
-        console.log(this.channelsState)
-
-        this.updateRouter();
+        this._updateRouter();
     }
 
-    addChannel() {
+    _markChannel(ch, mark) {
+        const id = ch.assignedChannel.id;
+        const widget = document.querySelector(`#${id}`);
+        widget.setAttribute('busy', mark);
+    }
+
+    _addChannel() {
         this.channelsState.push({
             id: `channel-id-${(new Date()).getTime()}`,
             isRendered: false,
             channel: 1,
         })
 
-        this.render();
+        this._render();
     }
 
-    removeChannel(channel) {
+    _removeChannel(channel) {
         const view = document.querySelector(`#${channel.id}`)
         this.removeChild(view)
         
         const currentNoteIndex = this.channelsState.findIndex((ch) => ch.id === channel.id);
         this.channelsState.splice(currentNoteIndex, 1);
         
-        this.render();
+        this._render();
     }
 
-    updateRouter() {
+    _updateRouter() {
         emit(SUBSCRIPTION_DICTIONARY.CHANNEL_SETTINGS_WAS_CHANGED, this.channelsState);
-    }
-
-    connectedCallback() {
-        this.render();
-    }
-
-    disconnectedCallback() {
-        unsubscribeFrom(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED);
-        unsubscribeFrom(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED);
     }
 }

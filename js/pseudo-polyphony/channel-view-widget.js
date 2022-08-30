@@ -1,9 +1,17 @@
 export class ChannelViewWidget extends HTMLElement {
-    constructor() {
-        super();
+    static get observedAttributes() {
+        return ['busy'];
     }
 
-    render() {
+    connectedCallback() {
+        this._render();
+    }
+    
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.classList.toggle('note-on')
+    }
+
+    _render() {
         const indicator = document.createElement('div');
         indicator.classList.add('circle')
         this.append(indicator)
@@ -34,17 +42,5 @@ export class ChannelViewWidget extends HTMLElement {
         button.innerText = 'x'
 
         this.append(button)
-    }
-    
-    connectedCallback() {
-        this.render();
-    }
-
-    static get observedAttributes() {
-        return ['busy'];
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        this.classList.toggle('note-on')
     }
 }

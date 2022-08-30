@@ -58,5 +58,11 @@ export function playNote(note, midiOutput) {
         default:
             break;
     }
+    
     console.log(note);
 }
+
+export const isNoteOn = (message) => message.data[0] >= 144 && message.data[0] <= 159 && message.data[2] > 0;
+
+export const isNoteOff = (message) => message.data[0] >= 128 && message.data[0] <= 143
+    || message.data[0] >= 144 && message.data[0] <= 159 && message.data[2] === 0;
