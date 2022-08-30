@@ -38,7 +38,7 @@ export class ChannelViewArea extends HTMLElement {
                 this._updateRouter();
             }
 
-            widget.onRemove = () => this._removeChannel(chState);
+            widget.close = () => this._removeChannel(chState);
 
             widget.setAttribute('busy', 'false');
 

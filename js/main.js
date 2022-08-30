@@ -2,11 +2,13 @@ import { ignoreMessage, playNote } from './midi-utils.js';
 import { NoteMessagesRouter } from './pseudo-polyphony/note-messages-router.js';
 import { ChannelViewArea } from './pseudo-polyphony/channel-view-area.js';
 import { ChannelViewWidget } from './pseudo-polyphony/channel-view-widget.js';
+import { NotificationView } from './general/notification-view.js';
 import { SUBSCRIPTION_DICTIONARY } from './constants.js'
 
 const MIDI_INPUT_MENU = '#midi-input-menu';
 const MIDI_OUTPUT_MENU = '#midi-output-menu';
 const RELOAD_SOURCES_BUTTON = '#reload-sources-button';
+const NOTIFICATION_PLACE = '#notification-place';
 
 let midi = null;
 
@@ -29,6 +31,7 @@ initHtmlComponents();
 function initHtmlComponents() {
     customElements.define('channel-view-area', ChannelViewArea);
     customElements.define('channel-view-widget', ChannelViewWidget);
+    customElements.define('notification-view', NotificationView);
 }
 
 function initMidiSources() {
@@ -120,7 +123,18 @@ function changeMidiIn() {
     } catch (e) {
         //TODO: change notification and re-init midi
         //TODO: try to catch onstatechange
-        alert('MIDI controller was inserted! Please, reconnect your device and try again!')
+        
+        const notificationPlace = document.querySelector(NOTIFICATION_PLACE);
+        const notification = document.createElement('notification-view');
+
+        notificationPlace.append(notification)
+
+        notification.close = () => notification.remove()
+        
+        notification.reloadAndClose = () => {
+            initMidiSources();
+            notification.remove();
+        }
     }
 }
 

@@ -37,10 +37,10 @@ export class ChannelViewWidget extends HTMLElement {
 
         selector.onchange = () => this.onChannelChange(+selector.value)
 
-        const button = document.createElement('button');
-        button.onclick = () => this.onRemove()
-        button.innerText = 'x'
+        const closeButton = document.createElement('button');
+        closeButton.onclick = () => this.close()
+        closeButton.innerText = 'x'
 
-        this.append(button)
+        this.append(closeButton)
     }
 }
