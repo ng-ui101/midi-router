@@ -3,20 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>MIDI router</title>
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/icomoon/style.css">
     <script type="module" src="./js/main.js"></script>
 </head>
-<body>
 
-<label for="midi-input-menu">Choose MIDI IN:</label>
-<select id="midi-input-menu" class="midi-select"></select>
+<body class="application-area">
 
-<label for="midi-output-menu">Choose MIDI OUT:</label>
-<select id="midi-output-menu" class="midi-select"></select>
+<div class="application-area__content">
+    <header class="application-area__header">
+        <h1>MIDI router</h1>
+    </header>
 
-<button id="reload-sources-button" type="button">Reload midi sources</button>
+    <div class="midi-device-settings">
+        <div class="midi-device-settings__menu">
+            <label for="midi-input-menu">Choose MIDI IN:</label>
+            <select id="midi-input-menu" class="select midi-device-menu__select"></select>
+        </div>
 
-<channel-view-area></channel-view-area>
+        <div class="midi-device-settings__menu">
+            <label for="midi-output-menu">Choose MIDI OUT:</label>
+            <select id="midi-output-menu" class="select midi-device-menu__select"></select>
+        </div>
+
+        <button id="reload-sources-button" type="button" class="button midi-device-settings__reload-button">
+            Reload MIDI devices
+        </button>
+    </div>
+
+    <channel-view-area></channel-view-area>
+</div>
 
 <div id="notification-place"></div>
 

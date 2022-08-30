@@ -22,12 +22,12 @@ export class NoteMessagesRouter {
     _ignoredNotes = [];     // [1]
     _channelList = [];
 
-    _channelListIsClearSub = 'channel-list-is-clear'
+    _channelListIsClearSub = 'channel-list-is-clear';
     
     _passOnlyNoteOff = false;
     
     constructor(updateChannelListSub) {
-        subscribeTo(updateChannelListSub, (usedChannels) => this._initChannelsTable(usedChannels))
+        subscribeTo(updateChannelListSub, (usedChannels) => this._initChannelsTable(usedChannels));
     }
 
     _initChannelsTable(usedChannels) {
@@ -57,9 +57,9 @@ export class NoteMessagesRouter {
         if (this._channelList.find((ch) => ch.isBusy)) {
             this._passOnlyNoteOff = true;
             
-            subscribeTo(this._channelListIsClearSub, modifyChannelList)
+            subscribeTo(this._channelListIsClearSub, modifyChannelList);
         } else {
-            modifyChannelList()
+            modifyChannelList();
         }
     }
 
@@ -87,7 +87,7 @@ export class NoteMessagesRouter {
             currentNote = {
                 replaceableNote: oldNote,
                 assignedCommand: MIDI_COMMAND.REPLACE_NOTE
-            }
+            };
         }
 
         const assignedChannel = this._channelList.find((ch) => !ch.isBusy);
@@ -120,7 +120,7 @@ export class NoteMessagesRouter {
         this._activeNotes.splice(currentNoteIndex, 1);
 
         if (this._activeNotes.length === 0 && this._passOnlyNoteOff) {
-            emit(this._channelListIsClearSub)
+            emit(this._channelListIsClearSub);
         }
         
         return {

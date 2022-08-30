@@ -1,5 +1,5 @@
-import { emit, subscribeTo, unsubscribeFrom } from '../subscription-tools.js'
-import { SUBSCRIPTION_DICTIONARY } from '../constants.js'
+import {emit, subscribeTo, unsubscribeFrom} from '../subscription-tools.js'
+import {SUBSCRIPTION_DICTIONARY} from '../constants.js'
 
 export class ChannelViewArea extends HTMLElement {
     channelsState = [];
@@ -7,9 +7,9 @@ export class ChannelViewArea extends HTMLElement {
     constructor() {
         super();
 
-        this.classList.add('view-area')
-        subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, (ch) => this._markChannel(ch, 'true'))
-        subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, (ch) => this._markChannel(ch, 'false'))
+        this.classList.add('router-view-area')
+        subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, (ch) => this._markChannel(ch, 'true'));
+        subscribeTo(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, (ch) => this._markChannel(ch, 'false'));
     }
 
     connectedCallback() {
@@ -26,10 +26,10 @@ export class ChannelViewArea extends HTMLElement {
             if (chState.isRendered) {
                 return;
             }
-                        
+
             let widget = document.createElement('channel-view-widget');
-            widget.classList.add('widget')
-            
+            widget.classList.add('router-widget', 'router-view-area__widget');
+
             widget.id = chState.id;
             widget.channel = chState.channel;
 
@@ -42,18 +42,23 @@ export class ChannelViewArea extends HTMLElement {
 
             widget.setAttribute('busy', 'false');
 
-            this.append(widget)
+            this.append(widget);
 
             chState.isRendered = true;
         });
 
         if (!document.querySelector(`#addButton`)) {
             const addButton = document.createElement('button');
-            addButton.classList.add('add-button')
-            addButton.id = 'addButton'
-            addButton.innerText = '+'
-            addButton.onclick = () => this._addChannel()
-            this.append(addButton)
+            addButton.classList.add('button', 'router-view-area__add-button');
+
+            const icon = document.createElement('i');
+            icon.classList.add('icon-plus');
+
+            addButton.id = 'addButton';
+            addButton.onclick = () => this._addChannel();
+            
+            this.append(addButton);
+            addButton.append(icon);
         }
 
         this._updateRouter();
@@ -76,12 +81,12 @@ export class ChannelViewArea extends HTMLElement {
     }
 
     _removeChannel(channel) {
-        const view = document.querySelector(`#${channel.id}`)
-        this.removeChild(view)
-        
+        const view = document.querySelector(`#${channel.id}`);
+        this.removeChild(view);
+
         const currentNoteIndex = this.channelsState.findIndex((ch) => ch.id === channel.id);
         this.channelsState.splice(currentNoteIndex, 1);
-        
+
         this._render();
     }
 

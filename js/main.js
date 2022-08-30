@@ -49,7 +49,7 @@ function initMidiSources() {
     midiOutList = [];
     midiOutput = null;
 
-    const findOptions = (id) => document.querySelectorAll(`${id} option`)
+    const findOptions = (id) => document.querySelectorAll(`${id} option`);
 
     !midiInMenu || findOptions(MIDI_INPUT_MENU).forEach((option) => midiInMenu.removeChild(option));
     !midiOutMenu || findOptions(MIDI_OUTPUT_MENU).forEach((option) => midiOutMenu.removeChild(option));
@@ -140,9 +140,9 @@ function showNotification() {
         return;
     }
 
-    notificationPlace.append(notification)
+    notificationPlace.append(notification);
 
-    notification.close = () => notification.remove()
+    notification.close = () => notification.remove();
 
     notification.reloadAndClose = () => {
         initMidiSources();

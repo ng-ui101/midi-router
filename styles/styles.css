@@ -1,0 +1,130 @@
+.button {
+    background-color: #2B3636;
+    color: #62B8C1;
+    border: solid 1px #7FABAB;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.select {
+    background-color: #2B3636;
+    color: #62B8C1;
+    border: solid 1px #7FABAB;
+    outline-width: 0 !important;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.application-area {
+    padding: 0 24px;
+    background-color: #283C3C;
+    color: #62B8C1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+}
+
+.application-area__content {
+    display: grid;
+    margin: 0 auto;
+    max-width: 425px;
+}
+
+.application-area__header {
+    margin: 0 auto;
+}
+
+.midi-device-settings {
+    padding-bottom: 24px;
+}
+
+.midi-device-settings__menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 8px 16px;
+}
+
+.midi-device-menu__select {
+    min-width: 240px;
+}
+
+.midi-device-settings__reload-button {
+    margin: 0 auto;
+    display: flex;
+    min-width: 140px;
+}
+
+.router-view-area {
+    position: relative;
+    display: grid;
+}
+
+.router-view-area__add-button {
+    position: absolute;
+    bottom: -32px;
+    left: calc(50% - 8px);
+    /*icomoon fix*/
+    padding: 4px 4px 4px 5px;
+    font-size: 8px;
+}
+
+.router-view-area__widget {
+    margin: 0 8px 16px;
+}
+
+.router-widget {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.router-widget__midi-indicator {
+    border: solid 1px #7FABAB;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    background-color: #7FABAB;
+}
+
+.router-widget__close-button {
+    padding: 8px;
+    font-size: 8px;
+    /*icomoon fix*/
+    height: 27px;
+    width: 29px;
+}
+
+.router-widget--note-off > .router-widget__midi-indicator {
+    background-color: unset;
+}
+
+.notification-layer {
+    display: grid;
+    position: absolute;
+    top: 36px;
+    left: calc(50% - 180px);
+    grid-template-columns: 32px auto 32px 4px;
+    grid-template-rows: 4px 32px 32px auto 32px 32px;
+    height: 360px;
+    width: 360px;
+    background-color: #2B3636;
+    border: solid 1px #7FABAB;
+}
+
+.notification-layer__close-button {
+    grid-column-start: 3;
+    grid-row-start: 2;
+}
+
+.notification-layer__message {
+    grid-column-start: 2;
+    grid-row-start: 3;
+}
+
+.notification-layer__try-again-button {
+    grid-column-start: 2;
+    grid-row-start: 5;
+}

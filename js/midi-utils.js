@@ -31,26 +31,26 @@ export function playNote(note, midiOutput) {
             
             // add max velocity:
             // note.message.data[2] = 127;
-            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, note)
+            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, note);
             
             midiOutput.send(note.message.data);
             break;
         case MIDI_COMMAND.NOTE_OFF:
             note.message.data[0] = note.assignedChannel.noteOffCode;
-            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, note)
+            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, note);
 
             midiOutput.send(note.message.data);
             break;
         case MIDI_COMMAND.REPLACE_NOTE:
             note.replaceableNote.message.data[0] = note.replaceableNote.assignedChannel.noteOffCode;
-            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, note)
+            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_RELEASED, note);
             midiOutput.send(note.replaceableNote.message.data);
 
             note.message.data[0] = note.assignedChannel.noteOnCode;
             
             // add max velocity:
             // note.message.data[2] = 127;
-            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, note)
+            emit(SUBSCRIPTION_DICTIONARY.NOTE_WAS_PLAYED, note);
             
             midiOutput.send(note.message.data);
             break;

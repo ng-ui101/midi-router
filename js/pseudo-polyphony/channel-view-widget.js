@@ -8,23 +8,24 @@ export class ChannelViewWidget extends HTMLElement {
     }
     
     attributeChangedCallback(name, oldValue, newValue) {
-        this.classList.toggle('note-on')
+        this.classList.toggle('router-widget--note-off');
     }
 
     _render() {
         const indicator = document.createElement('div');
-        indicator.classList.add('circle')
-        this.append(indicator)
+        indicator.classList.add('router-widget__midi-indicator');
+        this.append(indicator);
 
         const label = document.createElement('label');
-        label.innerText = 'MIDI TO'
-        label.setAttribute('for', `select-${this.id}`)
-        this.append(label)
+        label.innerText = 'MIDI TO';
+        label.setAttribute('for', `select-${this.id}`);
+        this.append(label);
 
         const selector = document.createElement('select');
-        label.setAttribute('id', `select-${this.id}`)
+        selector.classList.add('select');
+        label.setAttribute('id', `select-${this.id}`);
         
-        this.append(selector)
+        this.append(selector);
 
         for (let i = 1; i <= 16; i++) {
             const option = document.createElement('option');
@@ -33,14 +34,18 @@ export class ChannelViewWidget extends HTMLElement {
             selector.appendChild(option);
         }
 
-        selector.selected = String(this.channel)
+        selector.selected = String(this.channel);
 
-        selector.onchange = () => this.onChannelChange(+selector.value)
+        selector.onchange = () => this.onChannelChange(+selector.value);
 
         const closeButton = document.createElement('button');
-        closeButton.onclick = () => this.close()
-        closeButton.innerText = 'x'
+        closeButton.classList.add('button', 'router-widget__close-button');
+        closeButton.onclick = () => this.close();
 
-        this.append(closeButton)
+        const icon = document.createElement('i');
+        icon.classList.add('icon-cross');
+
+        this.append(closeButton);
+        closeButton.append(icon);
     }
 }
