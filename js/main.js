@@ -116,31 +116,38 @@ function changeMidiIn() {
     !midiInput?.onmidimessage || (midiInput.onmidimessage = null);
 
     midiInput = midiInList.find((el) => el.id === midiInMenu.value);
-    console.log(midiInput);
-
-    try {
+    
+    if (!midiInput || midiInput.state === 'disconnected') {
+        showNotification();
+    } else {
         midiInput.onmidimessage = modifyMidiMessage;
-    } catch (e) {
-        //TODO: change notification and re-init midi
-        //TODO: try to catch onstatechange
-        
-        const notificationPlace = document.querySelector(NOTIFICATION_PLACE);
-        const notification = document.createElement('notification-view');
-
-        notificationPlace.append(notification)
-
-        notification.close = () => notification.remove()
-        
-        notification.reloadAndClose = () => {
-            initMidiSources();
-            notification.remove();
-        }
     }
 }
 
 function changeMidiOut() {
     midiOutput = midiOutList.find((el) => el.id === midiOutMenu.value);
-    console.log(midiOutput);
+
+    if (!midiOutput || midiOutput.state === 'disconnected') {
+        showNotification();
+    }
+}
+
+function showNotification() {
+    const notificationPlace = document.querySelector(NOTIFICATION_PLACE);
+    const notification = document.createElement('notification-view');
+    
+    if (notificationPlace.hasChildNodes()) {
+        return;
+    }
+
+    notificationPlace.append(notification)
+
+    notification.close = () => notification.remove()
+
+    notification.reloadAndClose = () => {
+        initMidiSources();
+        notification.remove();
+    }
 }
 
 function modifyMidiMessage(message) {
