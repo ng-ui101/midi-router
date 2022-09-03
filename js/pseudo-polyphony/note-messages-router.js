@@ -31,7 +31,7 @@ export class NoteMessagesRouter {
     }
 
     _initChannelsTable(usedChannels) {
-        if (usedChannels.length === 0) {
+        if (usedChannels.length === 0 && this._activeNotes.length === 0) {
             return;
         }
 

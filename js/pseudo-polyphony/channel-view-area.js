@@ -67,7 +67,7 @@ export class ChannelViewArea extends HTMLElement {
     _markChannel(ch, mark) {
         const id = ch.assignedChannel.id;
         const widget = document.querySelector(`#${id}`);
-        widget.setAttribute('busy', mark);
+        widget?.setAttribute('busy', mark);
     }
 
     _addChannel() {
